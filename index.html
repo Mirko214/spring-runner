@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>新春福袋抽奖</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Ma Shan Zheng', cursive;
+        }
+
+        .container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: url('images/background.png') center center / cover no-repeat;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 福袋区域 */
+        .lucky-bags-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* 装饰动画层 */
+        .bg-decorations {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 5;
+        }
+
+        .bg-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.7;
+            z-index: 1;
+            width: 100vw;
+            /* Enlarged by 400% (was 50vw) */
+            pointer-events: none;
+        }
+
+        /* 送祝福标题 - 上联（左侧） */
+        .blessing-title {
+            position: absolute;
+            left: calc(6vw + 100px);
+            top: 50%;
+            transform: translateY(calc(-50% - 20px));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: clamp(59px, 8.4vw, 101px);
+            color: #cc0000;
+            text-shadow:
+                2px 2px 0 #ffd700,
+                -2px -2px 0 #ffd700,
+                2px -2px 0 #ffd700,
+                -2px 2px 0 #ffd700,
+                3px 3px 0 #ffd700;
+            letter-spacing: 0.1em;
+            font-weight: bold;
+            z-index: 8;
+        }
+
+        /* 下联（右侧） */
+        .blessing-title-right {
+            position: absolute;
+            right: calc(6vw + 100px);
+            top: 50%;
+            transform: translateY(calc(-50% - 20px));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: clamp(59px, 8.4vw, 101px);
+            color: #cc0000;
+            text-shadow:
+                2px 2px 0 #ffd700,
+                -2px -2px 0 #ffd700,
+                2px -2px 0 #ffd700,
+                -2px 2px 0 #ffd700,
+                3px 3px 0 #ffd700;
+            letter-spacing: 0.1em;
+            font-weight: bold;
+            z-index: 8;
+        }
+
+        /* Animations */
+
+
+
+
+
+        /* 金色粒子 */
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .particle {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: radial-gradient(circle, #ffd700 0%, rgba(255, 215, 0, 0) 70%);
+            border-radius: 50%;
+            animation: float-particle 8s linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes float-particle {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) scale(0);
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-20vh) scale(1.5);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-20vh) scale(1.5);
+            }
+        }
+
+        /* 樱花飘落效果 */
+        .sakura {
+            position: fixed;
+            top: -10vh;
+            z-index: 100;
+            pointer-events: none;
+            will-change: transform;
+            opacity: 0.9;
+        }
+
+        @keyframes float-sakura {
+            0% {
+                transform: translateY(0) rotate(0deg) translateX(0);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(110vh) rotate(360deg) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        /* 福袋网格 */
+        .lucky-bags-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            z-index: 10;
+        }
+
+        .lucky-bag {
+            width: 25vh;
+            height: 28vh;
+            max-width: 300px;
+            max-height: 340px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        /* 彩色流动光晕背景 */
+        .lucky-bag::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 90%;
+            height: 90%;
+            transform: translate(-50%, -50%);
+            background: conic-gradient(from 0deg,
+                    #ff6b6b,
+                    #ffd93d,
+                    #6bcb77,
+                    #4d96ff,
+                    #9b59b6,
+                    #ff6b6b);
+            border-radius: 50%;
+            filter: blur(25px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+            animation: rotate-glow 3s linear infinite;
+        }
+
+        @keyframes rotate-glow {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .lucky-bag:hover::before {
+            opacity: 0.8;
+        }
+
+        .lucky-bag img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .lucky-bag:hover img {
+            transform: scale(1.08);
+            filter: drop-shadow(0 8px 25px rgba(255, 255, 255, 0.5));
+        }
+
+        .lucky-bag:active img {
+            transform: scale(0.95);
+        }
+
+        .lucky-bag.opening {
+            animation: bag-shake 0.5s ease-in-out;
+        }
+
+        @keyframes bag-shake {
+
+            0%,
+            100% {
+                transform: rotate(0deg);
+            }
+
+            20% {
+                transform: rotate(-10deg);
+            }
+
+            40% {
+                transform: rotate(10deg);
+            }
+
+            60% {
+                transform: rotate(-10deg);
+            }
+
+            80% {
+                transform: rotate(10deg);
+            }
+        }
+
+        /* 弹窗遮罩 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        /* 吉祥话弹窗 */
+        .blessing-modal {
+            position: relative;
+            padding: 60px 80px;
+            text-align: center;
+            animation: modal-appear 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes modal-appear {
+            0% {
+                opacity: 0;
+                transform: scale(0) rotate(-180deg);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .blessing-text {
+            font-size: 144px;
+            color: #ffd700;
+            text-shadow:
+                0 0 10px rgba(255, 215, 0, 0.8),
+                0 0 20px rgba(255, 215, 0, 0.6),
+                0 0 40px rgba(255, 215, 0, 0.4),
+                3px 3px 0 #cc0000,
+                -3px -3px 0 #cc0000,
+                3px -3px 0 #cc0000,
+                -3px 3px 0 #cc0000;
+            animation: text-glow 1.5s ease-in-out infinite alternate;
+            letter-spacing: 10px;
+        }
+
+        .blessing-description {
+            font-size: 42px;
+            color: #fff;
+            margin-top: 20px;
+            line-height: 1.6;
+            text-shadow:
+                0 0 10px rgba(255, 255, 255, 0.5),
+                2px 2px 0 rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            padding: 0 20px;
+        }
+
+        @keyframes text-glow {
+            0% {
+                text-shadow:
+                    0 0 10px rgba(255, 215, 0, 0.8),
+                    0 0 20px rgba(255, 215, 0, 0.6),
+                    0 0 40px rgba(255, 215, 0, 0.4),
+                    3px 3px 0 #cc0000,
+                    -3px -3px 0 #cc0000,
+                    3px -3px 0 #cc0000,
+                    -3px 3px 0 #cc0000;
+            }
+
+            100% {
+                text-shadow:
+                    0 0 20px rgba(255, 215, 0, 1),
+                    0 0 40px rgba(255, 215, 0, 0.8),
+                    0 0 60px rgba(255, 215, 0, 0.6),
+                    0 0 80px rgba(255, 215, 0, 0.4),
+                    3px 3px 0 #cc0000,
+                    -3px -3px 0 #cc0000,
+                    3px -3px 0 #cc0000,
+                    -3px 3px 0 #cc0000;
+            }
+        }
+
+        .tap-hint {
+            margin-top: 40px;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.8);
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        /* 烟花效果 */
+        .fireworks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .firework {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: firework-explode 1s ease-out forwards;
+        }
+
+        @keyframes firework-explode {
+            0% {
+                transform: scale(0);
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .lucky-bag {
+                width: 160px;
+                height: 180px;
+            }
+
+            .lucky-bags-grid {
+                gap: 10px;
+            }
+
+            .blessing-text {
+                font-size: 96px;
+            }
+
+            .lantern {
+                width: 60px;
+                height: 75px;
+            }
+        }
+
+        @media (min-width: 1024px) and (max-height: 800px) {
+            .lucky-bag {
+                width: 180px;
+                height: 200px;
+            }
+        }
+
+        /* 掉落物品样式 */
+        .falling-item {
+            position: fixed;
+            top: -10vh;
+            z-index: 2000;
+            pointer-events: none;
+            will-change: transform;
+        }
+
+        @keyframes fall-down {
+            to {
+                transform: translateY(110vh) rotate(720deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 福袋区域 -->
+        <div class="lucky-bags-area">
+            <!-- 装饰背景元素 -->
+            <div class="bg-decorations">
+
+                <!-- 背景 Logo -->
+                <img class="bg-logo" src="images/logo.png" alt="Logo">
+
+                <!-- 送祝福标题 - 上联（左侧） -->
+                <div class="blessing-title">
+                    <span>新</span>
+                    <span>春</span>
+                    <span>送</span>
+                    <span>祝</span>
+                    <span>福</span>
+                </div>
+
+                <!-- 下联（右侧） -->
+                <div class="blessing-title-right">
+                    <span>美</span>
+                    <span>景</span>
+                    <span>入</span>
+                    <span>家</span>
+                    <span>门</span>
+                </div>
+
+                <!-- 金色粒子容器 -->
+                <div class="particles" id="particles"></div>
+            </div>
+
+            <!-- 福袋网格 -->
+            <div class="lucky-bags-grid" id="luckyBagsGrid">
+                <!-- 福袋将通过 JS 动态生成 -->
+            </div>
+        </div>
+
+        <!-- 吉祥话弹窗 -->
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="blessing-modal">
+                <div class="fireworks" id="fireworks"></div>
+                <div class="blessing-text" id="blessingText"></div>
+                <div class="blessing-description" id="blessingDescription"></div>
+                <div class="tap-hint">点击任意处继续</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 背景音乐 -->
+    <audio id="bgMusic" loop>
+        <source src="music/Delos - 寻灯游.mp3" type="audio/mpeg">
+    </audio>
+    <!-- 音效 -->
+    <audio id="winMusic">
+        <source src="music/winner.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // 福袋图片列表
+        const bagImages = [
+            'images/马到成功 2.png',
+            'images/龙马精神 2.png',
+            'images/一马当先 2.png',
+            'images/天马行空 2.png',
+            'images/快马加鞭 2.png',
+            'images/福马迎春 2.png',
+            'images/策马奔腾 2.png',
+            'images/繁花似锦 2.png',
+            'images/金马送福 2.png'
+        ];
+
+        // 吉祥话列表（包含四字词语和祝福话）
+        const blessings = [
+            { title: '马到成功', desc: '祝您新的一年：开门见喜，万事顺遂！' },
+            { title: '龙马精神', desc: '愿您：身体健康，活力满满，整年都精神抖擞！' },
+            { title: '一马当先', desc: '祝您在事业赛道上：步步高升，独占鳌头！' },
+            { title: '金马送福', desc: '听！是好运的声音：金马送福进家门，财源滚滚挡不住！' },
+            { title: '策马奔腾', desc: '2026，愿您：追逐梦想，活出最精彩的自己！' },
+            { title: '天马行空', desc: '祝您生活多彩：才思泉涌，日子越过越有趣！' },
+            { title: '快马加鞭', desc: '好运正在赶来：幸福快马加鞭，直奔您怀里！' },
+            { title: '福马迎春', desc: '春风得意马蹄疾，好运来，阖家欢乐事事兴！' },
+            { title: '繁花似锦', desc: '愿您的前程：如骏马驰骋广阔草原，未来可期！' }
+        ];
+
+        // 当前福袋对应的吉祥话（随机分配）
+        let bagBlessings = [];
+
+        // 洗牌算法
+        function shuffle(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // 随机分配吉祥话给福袋
+        function assignBlessings() {
+            bagBlessings = shuffle(blessings);
+        }
+
+        // 创建金色粒子
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            particlesContainer.innerHTML = '';
+
+            for (let i = 0; i < 30; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.width = (4 + Math.random() * 6) + 'px';
+                particle.style.height = particle.style.width;
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // 创建福袋网格
+        function createLuckyBags() {
+            const grid = document.getElementById('luckyBagsGrid');
+            grid.innerHTML = '';
+
+            bagImages.forEach((img, index) => {
+                const bag = document.createElement('div');
+                bag.className = 'lucky-bag';
+                bag.innerHTML = `<img src="${img}" alt="福袋${index + 1}">`;
+                bag.addEventListener('click', () => openBag(index));
+                grid.appendChild(bag);
+            });
+        }
+
+        // 创建烟花效果
+        function createFireworks() {
+            const fireworksContainer = document.getElementById('fireworks');
+            fireworksContainer.innerHTML = '';
+
+            const colors = ['#ff0000', '#ffd700', '#ff6600', '#ffff00', '#ff3366'];
+
+            for (let i = 0; i < 20; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = (20 + Math.random() * 60) + '%';
+                firework.style.top = (20 + Math.random() * 60) + '%';
+                firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+                firework.style.animationDelay = (Math.random() * 0.5) + 's';
+                firework.style.boxShadow = `0 0 20px ${firework.style.background}`;
+                fireworksContainer.appendChild(firework);
+            }
+        }
+
+        // 打开福袋
+        function openBag(index) {
+            const bags = document.querySelectorAll('.lucky-bag');
+            const bag = bags[index];
+
+            // 添加抖动动画
+            bag.classList.add('opening');
+
+            setTimeout(() => {
+                bag.classList.remove('opening');
+
+                // 显示吉祥话弹窗
+                const modal = document.getElementById('modalOverlay');
+                const blessingText = document.getElementById('blessingText');
+                const blessingDesc = document.getElementById('blessingDescription');
+
+                blessingText.textContent = bagBlessings[index].title;
+                blessingDesc.textContent = bagBlessings[index].desc;
+                // 播放音效并处理背景音乐
+                playWinMusic();
+                // 触发金币红包雨
+                createTreasureRain();
+
+                createFireworks();
+                modal.classList.add('active');
+            }, 500);
+        }
+
+        // 音效播放计数器，用于管理背景音乐音量
+        let activeSoundCount = 0;
+
+        // 播放胜利音效
+        function playWinMusic() {
+            const bgMusic = document.getElementById('bgMusic');
+            // 创建新的音频实例以支持重叠播放
+            const sfx = new Audio('music/winner.mp3');
+
+            // 降低背景音乐音量 (如果还没降低)
+            if (activeSoundCount === 0) {
+                const originalVolume = 0.5; // 假设默认音量是 0.5，或者是当前音量
+                // 确保记录当前音量（简化处理，直接设为 0.3）
+                bgMusic.volume = Math.max(0, bgMusic.volume - 0.2);
+            }
+
+            activeSoundCount++;
+
+            sfx.play().catch(e => console.log('SFX play failed:', e));
+
+            // 音效结束后
+            sfx.onended = () => {
+                activeSoundCount--;
+                // 只有当所有音效都结束时才恢复背景音乐
+                if (activeSoundCount <= 0) {
+                    activeSoundCount = 0; // 防止负数
+                    // 缓慢恢复音量
+                    const targetVolume = 0.5; // 恢复到默认音量
+                    const fadeInterval = setInterval(() => {
+                        // 如果又有新音效播放，取消恢复
+                        if (activeSoundCount > 0) {
+                            clearInterval(fadeInterval);
+                            return;
+                        }
+
+                        if (bgMusic.volume < targetVolume) {
+                            bgMusic.volume = Math.min(targetVolume, bgMusic.volume + 0.05);
+                        } else {
+                            clearInterval(fadeInterval);
+                        }
+                    }, 100);
+                }
+            };
+        }
+
+        // 创建金币红包雨
+        function createTreasureRain() {
+            const count = 50; // 掉落数量
+            const images = ['images/coin.png', 'images/red envelop.png'];
+
+            for (let i = 0; i < count; i++) {
+                const item = document.createElement('img');
+                item.className = 'falling-item';
+
+                // 随机选择金币或红包
+                item.src = images[Math.floor(Math.random() * images.length)];
+
+                // 随机属性
+                const left = Math.random() * 100; // 水平位置
+                const duration = 1 + Math.random() * 2; // 下落时长 1-3秒
+                const size = 60 + Math.random() * 80; // 大小 60-140px
+                const delay = Math.random() * 3; // 延迟 0-3秒
+                const rotation = Math.random() * 360; // 初始旋转
+
+                // 应用样式
+                item.style.left = left + '%';
+                item.style.width = size + 'px';
+                item.style.height = 'auto'; // 保持比例
+                item.style.transform = `rotate(${rotation}deg)`;
+
+                // 不同的旋转方向和速度
+                const rotationDir = Math.random() > 0.5 ? 1 : -1;
+                const rotationSpeed = 360 + Math.random() * 720; // 旋转圈数
+
+                // 使用 Web Animations API 获得更好的性能和控制
+                const animation = item.animate([
+                    { transform: `translateY(0) rotate(${rotation}deg)`, opacity: 0 },
+                    { transform: `translateY(10vh) rotate(${rotation + 45}deg)`, opacity: 1, offset: 0.1 },
+                    { transform: `translateY(110vh) rotate(${rotation + rotationDir * rotationSpeed}deg)`, opacity: 1 }
+                ], {
+                    duration: duration * 1000,
+                    delay: delay * 1000,
+                    easing: 'linear',
+                    fill: 'forwards'
+                });
+
+                document.body.appendChild(item);
+
+                // 动画结束后移除元素
+                animation.onfinish = () => {
+                    item.remove();
+                };
+            }
+        }
+
+
+        // 樱花相关配置
+        const sakuraImages = [
+            'images/Slice 1.png',
+            'images/Slice 2.png',
+            'images/Slice 3.png',
+            'images/Slice 4.png',
+            'images/Slice 5.png',
+            'images/Slice 6.png',
+            'images/Slice 7.png',
+            'images/Slice 8.png'
+        ];
+
+        // 创建单个樱花
+        function createSakura() {
+            const sakura = document.createElement('img');
+            sakura.className = 'sakura';
+
+            // 随机选择图片
+            const randomImage = sakuraImages[Math.floor(Math.random() * sakuraImages.length)];
+            sakura.src = randomImage;
+
+            // 1. 随机大小 (增大50%) - 原来 15-35 -> 现在 22-52
+            const size = 22 + Math.random() * 30;
+            sakura.style.width = `${size}px`;
+            sakura.style.height = 'auto';
+
+            // 2. 随机层级 (30% 在后面，70% 在前面覆盖福袋)
+            // 福袋在 z-index 10，背景装饰在 z-index 5
+            const isFront = Math.random() > 0.3;
+            sakura.style.zIndex = isFront ? 20 : 2;
+
+            // 3. 随机位置和运动轨迹
+            // 30% 概率从左上角飘向右下角 (diagonal)，70% 从上方飘落 (vertical)
+            const isDiagonal = Math.random() < 0.3;
+
+            // 随机动画持续时间 (5s - 12s)
+            const duration = 5 + Math.random() * 7;
+
+            // 随机延迟
+            const delay = Math.random() * 5;
+
+            // 随机初始旋转角度
+            const initialRotation = Math.random() * 360;
+
+            let keyframes;
+
+            if (isDiagonal) {
+                // 斜向飘落：从左侧或者顶部偏左开始，往右下方飘
+                // 起始 left: -20% 到 50%
+                const startLeft = -20 + Math.random() * 70;
+                sakura.style.left = `${startLeft}%`;
+
+                // 终点 translateX: 增加 30vw - 80vw
+                const endTranslateX = 30 + Math.random() * 50;
+
+                keyframes = [
+                    { transform: `translateY(0) rotate(${initialRotation}deg) translateX(0)`, opacity: 0 },
+                    { transform: `translateY(20vh) rotate(${initialRotation + 45}deg) translateX(${endTranslateX * 0.2}vw)`, opacity: 0.9, offset: 0.2 },
+                    { transform: `translateY(110vh) rotate(${initialRotation + 360}deg) translateX(${endTranslateX}vw)`, opacity: 0 }
+                ];
+
+            } else {
+                // 垂直飘落 (带左右摆动)
+                sakura.style.left = `${Math.random() * 100}%`;
+
+                // 随机水平偏移方向和距离 (摆动)
+                const sweetX = (Math.random() - 0.5) * 200;
+
+                keyframes = [
+                    { transform: `translateY(0) rotate(${initialRotation}deg) translateX(0)`, opacity: 0 },
+                    { transform: `translateY(20vh) rotate(${initialRotation + 45}deg) translateX(${sweetX * 0.2}px)`, opacity: 0.9, offset: 0.2 },
+                    { transform: `translateY(110vh) rotate(${initialRotation + 360}deg) translateX(${sweetX}px)`, opacity: 0 }
+                ];
+            }
+
+            // 使用 Web Animations API
+            const animation = sakura.animate(keyframes, {
+                duration: duration * 1000,
+                delay: delay * 1000,
+                easing: 'linear',
+                fill: 'forwards'
+            });
+
+            document.body.appendChild(sakura);
+
+            // 动画结束后移除元素
+            animation.onfinish = () => {
+                sakura.remove();
+            };
+        }
+
+        // 开始樱花雨
+        function startSakuraRain() {
+            // 初始生成一些
+            for (let i = 0; i < 10; i++) {
+                setTimeout(createSakura, i * 300);
+            }
+
+            // 持续生成
+            setInterval(createSakura, 400); // 每400ms生成一个，可调整密度
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            const modal = document.getElementById('modalOverlay');
+            modal.classList.remove('active');
+
+            // 重新随机分配吉祥话
+            assignBlessings();
+        }
+
+        // 播放背景音乐
+        function playBgMusic() {
+            const bgMusic = document.getElementById('bgMusic');
+            bgMusic.volume = 0.5;
+            bgMusic.play().catch(e => {
+                // 如果自动播放失败，等待用户交互后播放
+                document.addEventListener('click', function playOnClick() {
+                    bgMusic.play();
+                    document.removeEventListener('click', playOnClick);
+                }, { once: true });
+            });
+        }
+
+        // 初始化
+        function init() {
+            assignBlessings();
+            createParticles();
+            createLuckyBags();
+            startSakuraRain(); // 启动樱花雨
+            playBgMusic();
+
+            // 点击弹窗关闭
+            document.getElementById('modalOverlay').addEventListener('click', closeModal);
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>
