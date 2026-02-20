@@ -345,23 +345,19 @@
         }
 
         .start-ingot {
-            width: 100%;
-            height: 100%;
+            width: 288%;
+            height: auto;
+            max-width: none;
             object-fit: contain;
             display: block;
             pointer-events: none;
             background: transparent;
-            mix-blend-mode: screen;
+            mix-blend-mode: normal;
             position: relative;
             z-index: 2;
-            /* 优化渲染清晰度 */
-            -webkit-font-smoothing: antialiased;
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
-            /* 增大 50% (原 1.92 * 1.5 = 2.88)，微小旋转 (0.02deg) 强制 Safari 重新计算抗锯齿 */
-            transform: scale(2.88) rotate(0.02deg);
+            image-rendering: auto;
+            transform: translateZ(0);
+            transform-origin: center center;
             transition: filter 0.3s ease;
             animation: ingot-breathe 2.4s ease-in-out infinite;
         }
@@ -389,11 +385,11 @@
 
             0%,
             100% {
-                transform: scale(2.8) rotate(0.02deg);
+                transform: translateZ(0) scale(0.97);
             }
 
             50% {
-                transform: scale(2.94) rotate(0.02deg);
+                transform: translateZ(0) scale(1.03);
             }
         }
 
