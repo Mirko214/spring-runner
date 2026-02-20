@@ -204,6 +204,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
+            z-index: 1;
         }
 
         .lucky-bag.disabled {
@@ -324,6 +325,31 @@
             align-items: center;
             justify-content: center;
             position: relative;
+            overflow: visible;
+        }
+
+        .start-cell::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 160%;
+            height: 160%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: conic-gradient(from 0deg,
+                    #ff7b00,
+                    #ffe66d,
+                    #52ff9a,
+                    #36cfff,
+                    #b879ff,
+                    #ff4f93,
+                    #ff7b00);
+            filter: blur(28px) saturate(1.15);
+            opacity: 0.85;
+            z-index: 0;
+            pointer-events: none;
+            animation: yuanbao-glow-flow 4.2s linear infinite;
         }
 
         .start-button {
@@ -342,6 +368,8 @@
             -webkit-appearance: none;
             outline: none;
             transition: transform 0.2s ease;
+            overflow: visible;
+            z-index: 2;
         }
 
         .start-ingot {
@@ -385,15 +413,29 @@
 
             0%,
             100% {
-                transform: translateZ(0) scale(0.97);
+                transform: translateZ(0) scale(0.955);
             }
 
             50% {
-                transform: translateZ(0) scale(1.03);
+                transform: translateZ(0) scale(1.045);
+            }
+        }
+
+        @keyframes yuanbao-glow-flow {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
+
+            .start-cell::before {
+                animation: none !important;
+            }
 
             .start-ingot {
                 animation: none !important;
@@ -864,7 +906,7 @@
             const finalIndex = Math.floor(Math.random() * ringLength);
             const totalRounds = 5 + Math.floor(Math.random() * 3);
             const totalSteps = totalRounds * ringLength + finalIndex;
-            const targetDuration = 1000 + Math.random() * 1000; // 1-2 秒
+            const targetDuration = 1000 + Math.random() * 500; // 1-1.5 秒
 
             let activeIndex = -1;
             let step = 0;
