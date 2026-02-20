@@ -352,8 +352,20 @@
             pointer-events: none;
             background: transparent;
             mix-blend-mode: screen;
-            /* 轻微内缩，避免素材边缘残留像素被看到 */
-            transform: scale(1.92);
+            position: relative;
+            z-index: 2;
+            /* 优化渲染清晰度 */
+            will-change: transform;
+            image-rendering: -webkit-optimize-contrast;
+            /* 增大 50% (原 1.92 * 1.5 = 2.88) */
+            transform: scale(2.88) translateZ(0);
+            transition: filter 0.3s ease;
+            animation: ingot-breathe 2.4s ease-in-out infinite;
+        }
+
+        .start-ingot.spinning {
+            filter: blur(3px) brightness(1.1);
+            animation: none;
         }
 
         .start-button:hover {
@@ -368,6 +380,25 @@
             cursor: default;
             opacity: 0.75;
             transform: none;
+        }
+
+        @keyframes ingot-breathe {
+
+            0%,
+            100% {
+                transform: scale(2.8) translateZ(0);
+            }
+
+            50% {
+                transform: scale(2.94) translateZ(0);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .start-ingot {
+                animation: none !important;
+            }
         }
 
         .lucky-bag.opening {
@@ -824,13 +855,17 @@
             clearHighlights();
 
             const startButton = document.getElementById('startButton');
-            if (startButton) startButton.disabled = true;
+            if (startButton) {
+                startButton.disabled = true;
+                const ingot = startButton.querySelector('.start-ingot');
+                if (ingot) ingot.classList.add('spinning');
+            }
 
             const ringLength = ringBags.length;
             const finalIndex = Math.floor(Math.random() * ringLength);
             const totalRounds = 5 + Math.floor(Math.random() * 3);
             const totalSteps = totalRounds * ringLength + finalIndex;
-            const targetDuration = 3000 + Math.random() * 1000; // 3-4 秒
+            const targetDuration = 1000 + Math.random() * 1000; // 1-2 秒
 
             let activeIndex = -1;
             let step = 0;
@@ -888,7 +923,11 @@
                 }
 
                 isSpinning = false;
-                if (startButton) startButton.disabled = false;
+                if (startButton) {
+                    startButton.disabled = false;
+                    const ingot = startButton.querySelector('.start-ingot');
+                    if (ingot) ingot.classList.remove('spinning');
+                }
             }
 
             runStep();
